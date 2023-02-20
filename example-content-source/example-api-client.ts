@@ -82,9 +82,10 @@ export interface ExampleWebhook {
 }
 
 /**
- * All InMemoryApiClient methods are asynchronous to simulate a real API client.
- * All content mutation methods schedule an asynchronous webhook with a short
- * delay to simulate a real world use case of a remote content source.
+ * All ExampleApiClient methods are asynchronous to simulate a real API client.
+ * All content mutation methods schedule an asynchronous event with a short
+ * delay to simulate a real world use case of a headless CMS pushing the updated
+ * content to CDN.
  */
 export class ExampleApiClient {
     private readonly databaseFilePath: string;
