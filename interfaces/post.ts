@@ -1,16 +1,16 @@
-import type Author from './author'
+import type Author from './author';
+import type Asset from './asset';
 
-type PostType = {
-  slug: string
-  title: string
-  date: string
-  coverImage: string
-  author: Author
-  excerpt: string
-  ogImage: {
-    url: string
-  }
-  content: string
+interface PostType {
+    id: string;
+    slug: string;
+    title: string;
+    date?: string;
+    coverImage?: Asset | null;
+    author?: Author | null;
+    excerpt?: string;
+    ogImage?: Asset | null;
+    content?: string;
 }
 
-export default PostType
+export default PostType;

@@ -1,97 +1,101 @@
-import { useRouter } from 'next/router'
-import ErrorPage from 'next/error'
-import Container from '../../components/container'
-import PostBody from '../../components/post-body'
-import Header from '../../components/header'
-import PostHeader from '../../components/post-header'
-import Layout from '../../components/layout'
-import { getPostBySlug, getAllPosts } from '../../lib/api'
-import PostTitle from '../../components/post-title'
-import Head from 'next/head'
-import { CMS_NAME } from '../../lib/constants'
-import markdownToHtml from '../../lib/markdownToHtml'
-import type PostType from '../../interfaces/post'
+import { useRouter } from 'next/router';
+import ErrorPage from 'next/error';
+import Head from 'next/head';
+import { GetStaticProps } from 'next';
+import Container from '../../components/container';
+import PostBody from '../../components/post-body';
+import Header from '../../components/header';
+import PostHeader from '../../components/post-header';
+import Layout from '../../components/layout';
+import PostTitle from '../../components/post-title';
+import { CMS_NAME } from '../../lib/constants';
+import markdownToHtml from '../../lib/markdownToHtml';
+import type Post from '../../interfaces/post';
+import { getApiClient, getDocumentById, getAssetById } from '../../lib/api';
 
 type Props = {
-  post: PostType
-  morePosts: PostType[]
-  preview?: boolean
-}
+    post?: Post;
+    morePosts?: Post[];
+    preview?: boolean;
+};
 
 export default function Post({ post, morePosts, preview }: Props) {
-  const router = useRouter()
-  if (!router.isFallback && !post?.slug) {
-    return <ErrorPage statusCode={404} />
-  }
-  return (
-    <Layout preview={preview}>
-      <Container>
-        <Header />
-        {router.isFallback ? (
-          <PostTitle>Loading…</PostTitle>
-        ) : (
-          <>
-            <article className="mb-32">
-              <Head>
-                <title>
-                  {post.title} | Next.js Blog Example with {CMS_NAME}
-                </title>
-                <meta property="og:image" content={post.ogImage.url} />
-              </Head>
-              <PostHeader
-                title={post.title}
-                coverImage={post.coverImage}
-                date={post.date}
-                author={post.author}
-              />
-              <PostBody content={post.content} />
-            </article>
-          </>
-        )}
-      </Container>
-    </Layout>
-  )
+    const router = useRouter();
+    if (!post) {
+        return <ErrorPage statusCode={404} />;
+    }
+    const title = `${post.title} | Next.js Blog Example with ${CMS_NAME}`;
+    return (
+        <Layout preview={preview}>
+            <Container>
+                <Header />
+                {router.isFallback ? (
+                    <PostTitle>Loading…</PostTitle>
+                ) : (
+                    <>
+                        <article className="mb-32" data-sb-object-id={post.id}>
+                            <Head>
+                                <title>{title}</title>
+                                {post.ogImage && <meta property="og:image" content={post.ogImage.url} />}
+                            </Head>
+                            <PostHeader title={post.title} coverImage={post.coverImage} date={post.date} author={post.author} />
+                            {post.content && <PostBody content={post.content} />}
+                        </article>
+                    </>
+                )}
+            </Container>
+        </Layout>
+    );
 }
 
 type Params = {
-  params: {
-    slug: string
-  }
-}
+    slug: string;
+};
 
-export async function getStaticProps({ params }: Params) {
-  const post = getPostBySlug(params.slug, [
-    'title',
-    'date',
-    'slug',
-    'author',
-    'content',
-    'ogImage',
-    'coverImage',
-  ])
-  const content = await markdownToHtml(post.content || '')
+export const getStaticProps: GetStaticProps<Props, Params> = async ({ params }) => {
+    const apiClient = getApiClient();
+    const postDocs = await apiClient.getDocuments({ type: 'post' });
+    const postDoc = postDocs.filter((document) => document.fields.slug === params?.slug)[0];
+    if (!postDoc) {
+        return { props: {} };
+    }
 
-  return {
-    props: {
-      post: {
-        ...post,
-        content,
-      },
-    },
-  }
-}
+    const authorDocument = await getDocumentById(postDoc.fields.author);
+    const post: Post = {
+        id: postDoc.id,
+        title: postDoc.fields.title,
+        date: postDoc.fields.date,
+        slug: postDoc.fields.slug,
+        author: authorDocument
+            ? {
+                  id: authorDocument.id,
+                  name: authorDocument.fields.name,
+                  picture: await getAssetById(authorDocument.fields.picture)
+              }
+            : null,
+        ogImage: await getAssetById(postDoc.fields.ogImage),
+        coverImage: await getAssetById(postDoc.fields.coverImage),
+        content: await markdownToHtml(postDoc.fields.content ?? '')
+    };
+
+    return {
+        props: {
+            post
+        }
+    };
+};
 
 export async function getStaticPaths() {
-  const posts = getAllPosts(['slug'])
-
-  return {
-    paths: posts.map((post) => {
-      return {
-        params: {
-          slug: post.slug,
-        },
-      }
-    }),
-    fallback: false,
-  }
+    const apiClient = getApiClient();
+    const postDocs = await apiClient.getDocuments({ type: 'post' });
+    return {
+        paths: postDocs.map((post) => {
+            return {
+                params: {
+                    slug: post.fields.slug
+                }
+            };
+        }),
+        fallback: false
+    };
 }
