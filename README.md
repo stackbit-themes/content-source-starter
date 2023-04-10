@@ -1,4 +1,4 @@
-# A statically generated blog example using Next.js, Airtable, TypeScript, and Stackbit
+# A statically generated blog example using Next.js, TypeScript, and Stackbit
 
 This starter is based on the [Next.js blog starter](https://github.com/vercel/next.js/tree/canary/examples/blog-starter). It replaces the content storage from Markdown files to a single JSON file to simulate a headless CMS. This demo also contains the Stackbit configuration file [stackbit.config.ts](https://docs.stackbit.com/reference/config) and an [example content source implementation](example-content-source/example-content-source.ts) that enables previewing a site powered by a headless CMS inside Stackbit and editing the content stored in the headless CMS using a visual editing experience.
 
