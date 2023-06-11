@@ -86,18 +86,22 @@ export function toStackbitDocuments(
                         };
                         break;
                     case 'image':
-                        fields[fieldName] = {
-                            type: 'reference',
-                            refType: 'asset',
-                            refId: fieldValue
-                        };
+                        if (fieldValue) {
+                            fields[fieldName] = {
+                                type: 'reference',
+                                refType: 'asset',
+                                refId: fieldValue
+                            };
+                        }
                         break;
                     case 'reference':
-                        fields[fieldName] = {
-                            type: 'reference',
-                            refType: 'document',
-                            refId: fieldValue
-                        };
+                        if (fieldValue) {
+                            fields[fieldName] = {
+                                type: 'reference',
+                                refType: 'document',
+                                refId: fieldValue
+                            };
+                        }
                         break;
                     case 'object':
                     case 'model':

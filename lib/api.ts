@@ -22,6 +22,6 @@ export async function getDocumentById(documentId?: string): Promise<ExampleDocum
     if (!documentId) {
         return null;
     }
-    const documents = await apiClient.getDocuments();
+    const documents = await apiClient.getDocuments({ includeEmptyFields: true });
     return documents.find((document) => document.id === documentId) ?? null;
 }

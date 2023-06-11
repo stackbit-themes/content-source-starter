@@ -36,7 +36,7 @@ export default function Index({ allPosts }: Props) {
 
 export const getStaticProps: GetStaticProps<Props> = async () => {
     const apiClient = getApiClient();
-    const postDocs = await apiClient.getDocuments({ type: 'post' });
+    const postDocs = await apiClient.getDocuments({ type: 'post', includeEmptyFields: true });
     const allPosts: Post[] = [];
     for (const postDoc of postDocs) {
         const authorDocument = await getDocumentById(postDoc.fields.author);
@@ -45,7 +45,7 @@ export const getStaticProps: GetStaticProps<Props> = async () => {
             id: postDoc.id,
             title: postDoc.fields.title,
             slug: normalizeSlug(postDoc.fields.slug),
-            date: postDoc.fields.date || null,
+            date: postDoc.fields.date,
             author: authorDocument
                 ? {
                       id: authorDocument.id,
@@ -54,7 +54,7 @@ export const getStaticProps: GetStaticProps<Props> = async () => {
                   }
                 : null,
             coverImage: postDoc.fields.coverImage ? await getAssetById(postDoc.fields.coverImage) : null,
-            excerpt: postDoc.fields.excerpt || null
+            excerpt: postDoc.fields.excerpt
         });
     }
 

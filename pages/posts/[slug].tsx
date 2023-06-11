@@ -55,7 +55,7 @@ type Params = {
 
 export const getStaticProps: GetStaticProps<Props, Params> = async ({ params }) => {
     const apiClient = getApiClient();
-    const postDocs = await apiClient.getDocuments({ type: 'post' });
+    const postDocs = await apiClient.getDocuments({ type: 'post', includeEmptyFields: true });
     const postDoc = postDocs.filter((document) => document.fields.slug === params?.slug)[0];
     if (!postDoc) {
         return { props: {} };
@@ -88,7 +88,7 @@ export const getStaticProps: GetStaticProps<Props, Params> = async ({ params }) 
 
 export async function getStaticPaths() {
     const apiClient = getApiClient();
-    const postDocs = await apiClient.getDocuments({ type: 'post' });
+    const postDocs = await apiClient.getDocuments({ type: 'post', includeEmptyFields: true });
     const paths = postDocs
         .map((post) => {
             if (post.fields.slug) {

@@ -161,7 +161,7 @@ export class ExampleContentSource
         }
         this.observerId = await this.apiClient.startObservingContentChanges({
             callback: ({ events }) => {
-                this.logger.info(`got events: ${events}`);
+                this.logger.info(`got events: ${JSON.stringify(events, null, 2)}`);
                 const contentChanges: ContentChangeEvent<ExampleDocumentContext, ExampleAssetContext> = {
                     documents: [],
                     assets: [],
@@ -196,7 +196,6 @@ export class ExampleContentSource
 
     private async getModels(): Promise<Model<ExampleModelContext>[]> {
         const models = await this.apiClient.getModels();
-        this.logger.info(`got ${models.length} models`);
         return toStackbitModels(models);
     }
 
@@ -206,13 +205,11 @@ export class ExampleContentSource
 
     async getDocuments(): Promise<Document<ExampleDocumentContext>[]> {
         const documents = await this.apiClient.getDocuments();
-        this.logger.info(`got ${documents.length} documents`);
         return toStackbitDocuments(documents, this.cache.getModelByName, this.manageUrl);
     }
 
     async getAssets(): Promise<Asset<ExampleAssetContext>[]> {
         const assets = await this.apiClient.getAssets();
-        this.logger.info(`got ${assets.length} assets`);
         return toStackbitAssets(assets, this.manageUrl, this.siteLocalhost);
     }
 
@@ -251,7 +248,9 @@ export class ExampleContentSource
         const fields = stackbitUpdatedFieldToExampleFields(options.updateOperationFields);
         const document = await this.apiClient.createDocument({ type: options.model.name, fields });
         this.logger.info(`created document, id: ${document.id}`);
-        return { documentId: toStackbitDocuments([document], this.cache.getModelByName, this.manageUrl)[0].id };
+        return {
+            documentId: toStackbitDocuments([document], this.cache.getModelByName, this.manageUrl)[0].id
+        };
     }
 
     async updateDocument(options: {
@@ -259,13 +258,12 @@ export class ExampleContentSource
         operations: UpdateOperation[];
         userContext?: User<ExampleUserContext>;
     }): Promise<void> {
+        this.logger.info(`update document, id: ${options.document.id}, operations: ${JSON.stringify(options.operations, null, 2)}`);
         const fields = stackbitUpdatesToExampleFields(options.operations);
-        const document = await this.apiClient.updateDocument({
+        await this.apiClient.updateDocument({
             documentId: options.document.id,
             fields: fields
         });
-        this.logger.info(`update document, id: ${document.id}`);
-        toStackbitDocuments([document], this.cache.getModelByName, this.manageUrl)[0];
     }
 
     async deleteDocument(options: { document: Document<ExampleDocumentContext>; userContext?: ExampleUserContext }): Promise<void> {
@@ -275,11 +273,11 @@ export class ExampleContentSource
     }
 
     async uploadAsset(options: {
-        url?: string | undefined;
-        base64?: string | undefined;
+        url?: string;
+        base64?: string;
         fileName: string;
         mimeType: string;
-        locale?: string | undefined;
+        locale?: string;
         userContext?: ExampleUserContext;
     }): Promise<Asset<ExampleAssetContext>> {
         if (!options.url) {
@@ -298,7 +296,7 @@ export class ExampleContentSource
     async validateDocuments(options: {
         documents: Document<ExampleDocumentContext>[];
         assets: Asset<ExampleAssetContext>[];
-        locale?: string | undefined;
+        locale?: string;
         userContext?: ExampleUserContext;
     }): Promise<{ errors: ValidationError[] }> {
         return { errors: [] };

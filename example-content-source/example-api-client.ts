@@ -107,13 +107,25 @@ export class ExampleApiClient {
         return data.models;
     }
 
-    async getDocuments(options?: { type?: string }): Promise<ExampleDocument[]> {
+    async getDocuments(options?: { type?: string; includeEmptyFields?: boolean }): Promise<ExampleDocument[]> {
         await networkDelay();
         const data = await this.loadData();
+        let documents = data.documents;
         if (options?.type) {
-            return data.documents.filter((document) => document.type === options.type);
+            documents = documents.filter((document) => document.type === options.type);
         }
-        return data.documents;
+        if (options?.includeEmptyFields) {
+            for (const document of documents) {
+                const model = data.models.find((model) => model.name === document.type);
+                if (!model) continue;
+                for (const field of model.fields) {
+                    if (typeof document.fields[field.name] === 'undefined') {
+                        document.fields[field.name] = null;
+                    }
+                }
+            }
+        }
+        return documents;
     }
 
     async getAssets(): Promise<ExampleAsset[]> {
