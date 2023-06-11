@@ -1,9 +1,17 @@
 import type { Model, Field, Document, DocumentField, Asset, UpdateOperation, UpdateOperationField } from '@stackbit/types';
 import type { ExampleModel, ExampleDocument, ExampleAsset } from './example-api-client';
-import type { DocumentContext, AssetContext } from './example-content-source';
 
-export function convertExampleModelsToStackbitModels(models: ExampleModel[]): Model[] {
-    return models.map((model): Model => {
+/**
+ * Define a custom context for documents, assets, models and the complete schema.
+ * This context is stored in the cache and accessible later for any need.
+ */
+export interface ExampleDocumentContext {}
+export interface ExampleAssetContext {}
+export interface ExampleModelContext {}
+export interface ExampleSchemaContext {}
+
+export function toStackbitModels(models: ExampleModel[]): Model<ExampleModelContext>[] {
+    return models.map((model): Model<ExampleModelContext> => {
         return {
             type: 'data',
             name: model.name,
@@ -16,7 +24,8 @@ export function convertExampleModelsToStackbitModels(models: ExampleModel[]): Mo
                     case 'image':
                         return {
                             type: field.type,
-                            name: field.name
+                            name: field.name,
+                            required: !!field.required
                         };
                     case 'reference':
                         return {
@@ -33,13 +42,13 @@ export function convertExampleModelsToStackbitModels(models: ExampleModel[]): Mo
     });
 }
 
-export function convertExampleDocumentsToStackbitDocuments(
+export function toStackbitDocuments(
     documents: ExampleDocument[],
-    modelMap: Record<string, Model>,
+    getModelByName: (modelName: string) => Model | undefined,
     manageUrl: string
-): Document<DocumentContext>[] {
-    return documents.map((document): Document<DocumentContext> => {
-        const model = modelMap[document.type];
+): Document<ExampleDocumentContext>[] {
+    return documents.map((document): Document<ExampleDocumentContext> => {
+        const model = getModelByName(document.type) as Model;
         return {
             type: 'document',
             id: document.id,
@@ -105,8 +114,8 @@ export function convertExampleDocumentsToStackbitDocuments(
     });
 }
 
-export function convertExampleAssetToStackbitAssets(assets: ExampleAsset[], manageUrl: string, siteLocalhost: string): Asset<AssetContext>[] {
-    return assets.map((asset): Asset<AssetContext> => {
+export function toStackbitAssets(assets: ExampleAsset[], manageUrl: string, siteLocalhost: string): Asset<ExampleAssetContext>[] {
+    return assets.map((asset): Asset<ExampleAssetContext> => {
         return {
             type: 'asset',
             id: asset.id,
@@ -133,7 +142,7 @@ export function convertExampleAssetToStackbitAssets(assets: ExampleAsset[], mana
     });
 }
 
-export function convertUpdateOperationFieldsToExampleDocumentFields(updateOperationFields: Record<string, UpdateOperationField>): Record<string, any> {
+export function stackbitUpdatedFieldToExampleFields(updateOperationFields: Record<string, UpdateOperationField>): Record<string, any> {
     const fields: Record<string, any> = {};
     for (const [fieldName, updateOperationField] of Object.entries(updateOperationFields)) {
         fields[fieldName] = convertUpdateOperationFieldToExampleDocumentField(updateOperationField);
@@ -141,7 +150,7 @@ export function convertUpdateOperationFieldsToExampleDocumentFields(updateOperat
     return fields;
 }
 
-export function convertUpdateOperationsToExampleDocumentFields(updateOperations: UpdateOperation[]): Record<string, any> {
+export function stackbitUpdatesToExampleFields(updateOperations: UpdateOperation[]): Record<string, any> {
     const fields: Record<string, any> = {};
     for (const operation of updateOperations) {
         if (operation.opType === 'set') {

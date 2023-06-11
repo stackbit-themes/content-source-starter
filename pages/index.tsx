@@ -8,6 +8,7 @@ import { CMS_NAME } from '../lib/constants';
 import type { GetStaticProps } from 'next';
 import type Post from '../interfaces/post';
 import { getApiClient, getDocumentById, getAssetById } from '../lib/api';
+import { normalizeSlug } from '../utils/common';
 
 type Props = {
     allPosts: Post[];
@@ -39,11 +40,12 @@ export const getStaticProps: GetStaticProps<Props> = async () => {
     const allPosts: Post[] = [];
     for (const postDoc of postDocs) {
         const authorDocument = await getDocumentById(postDoc.fields.author);
+        if (!postDoc.fields.slug || !postDoc.fields.title) continue;
         allPosts.push({
             id: postDoc.id,
             title: postDoc.fields.title,
-            date: postDoc.fields.date,
-            slug: postDoc.fields.slug,
+            slug: normalizeSlug(postDoc.fields.slug),
+            date: postDoc.fields.date || null,
             author: authorDocument
                 ? {
                       id: authorDocument.id,
@@ -51,8 +53,8 @@ export const getStaticProps: GetStaticProps<Props> = async () => {
                       picture: await getAssetById(authorDocument.fields.picture)
                   }
                 : null,
-            coverImage: await getAssetById(postDoc.fields.coverImage),
-            excerpt: postDoc.fields.excerpt
+            coverImage: postDoc.fields.coverImage ? await getAssetById(postDoc.fields.coverImage) : null,
+            excerpt: postDoc.fields.excerpt || null
         });
     }
 

@@ -28,6 +28,7 @@ export type ExampleModelField =
     | {
           type: 'string' | 'text' | 'markdown' | 'date' | 'image';
           name: string;
+          required?: boolean;
       }
     | {
           type: 'reference';

@@ -2,6 +2,7 @@ import cn from 'classnames';
 import Link from 'next/link';
 import Image from 'next/image';
 import type Asset from '../interfaces/asset';
+import { postUrlPath } from '../utils/common';
 
 type Props = {
     title: string;
@@ -25,7 +26,7 @@ const CoverImage = ({ title, asset, slug }: Props) => {
     return (
         <div className="sm:mx-0">
             {slug ? (
-                <Link as={`/posts/${slug}`} href="/posts/[slug]" aria-label={title}>
+                <Link as={postUrlPath(slug)} href="/posts/[slug]" aria-label={title}>
                     {image}
                 </Link>
             ) : (

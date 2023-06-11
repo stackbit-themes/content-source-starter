@@ -12,6 +12,7 @@ import { CMS_NAME } from '../../lib/constants';
 import markdownToHtml from '../../lib/markdownToHtml';
 import type Post from '../../interfaces/post';
 import { getApiClient, getDocumentById, getAssetById } from '../../lib/api';
+import { normalizeSlug } from '../../utils/common';
 
 type Props = {
     post?: Post;
@@ -65,7 +66,7 @@ export const getStaticProps: GetStaticProps<Props, Params> = async ({ params }) 
         id: postDoc.id,
         title: postDoc.fields.title,
         date: postDoc.fields.date,
-        slug: postDoc.fields.slug,
+        slug: normalizeSlug(postDoc.fields.slug),
         author: authorDocument
             ? {
                   id: authorDocument.id,
@@ -88,14 +89,20 @@ export const getStaticProps: GetStaticProps<Props, Params> = async ({ params }) 
 export async function getStaticPaths() {
     const apiClient = getApiClient();
     const postDocs = await apiClient.getDocuments({ type: 'post' });
+    const paths = postDocs
+        .map((post) => {
+            if (post.fields.slug) {
+                return {
+                    params: {
+                        slug: post.fields.slug
+                    }
+                };
+            }
+        })
+        .filter(Boolean);
+
     return {
-        paths: postDocs.map((post) => {
-            return {
-                params: {
-                    slug: post.fields.slug
-                }
-            };
-        }),
+        paths,
         fallback: false
     };
 }
