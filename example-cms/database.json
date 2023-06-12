@@ -24,9 +24,7 @@
                 {
                     "type": "reference",
                     "name": "author",
-                    "allowedTypes": [
-                        "author"
-                    ]
+                    "allowedTypes": ["author"]
                 },
                 {
                     "type": "text",
@@ -66,7 +64,9 @@
             "status": "published",
             "fields": {
                 "name": "JJ Kasper",
-                "picture": "jj-picture"
+                "picture": "jj-picture",
+                "updatedAt": "2023-06-12T08:18:29.694Z",
+                "status": "changed"
             }
         },
         {

@@ -1,5 +1,5 @@
 import type { Model, Field, Document, DocumentField, Asset, UpdateOperation, UpdateOperationField } from '@stackbit/types';
-import type { ExampleModel, ExampleDocument, ExampleAsset } from './example-api-client';
+import type { ExampleModel, ExampleDocument, ExampleAsset } from '../example-cms/api-client';
 
 /**
  * Define a custom context for documents, assets, models and the complete schema.

@@ -10,7 +10,7 @@ export default defineStackbitConfig({
     contentSources: [
         new ExampleContentSource({
             projectId: 'example',
-            databaseFilePath: path.join(process.cwd(), 'example-content-source/example-database.json')
+            databaseFilePath: process.env.EXAMPLE_DATABASE_FILE
         })
     ],
     modelExtensions: [

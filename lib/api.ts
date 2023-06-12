@@ -1,9 +1,7 @@
-import path from 'path';
-import { ExampleApiClient, ExampleAsset, ExampleDocument } from '../example-content-source/example-api-client';
+import { ExampleCmsApiClient, ExampleAsset, ExampleDocument } from '../example-cms/api-client';
 
-const apiClient = new ExampleApiClient({
-    projectId: 'example',
-    databaseFilePath: path.join(process.cwd(), 'example-content-source/example-database.json')
+const apiClient = new ExampleCmsApiClient({
+    databaseFilePath: process.env.EXAMPLE_DATABASE_FILE
 });
 
 export function getApiClient() {

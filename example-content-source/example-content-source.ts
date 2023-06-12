@@ -16,7 +16,7 @@ import type {
     Version
 } from '@stackbit/types';
 
-import { ExampleApiClient } from './example-api-client';
+import { ExampleCmsApiClient } from '../example-cms/api-client';
 import {
     toStackbitModels,
     toStackbitDocuments,
@@ -63,7 +63,7 @@ export class ExampleContentSource
     private logger!: Logger;
     private userLogger!: Logger;
     private localDev!: boolean;
-    private apiClient!: ExampleApiClient;
+    private apiClient!: ExampleCmsApiClient;
     private observerId?: string;
 
     constructor({ projectId, databaseFilePath, siteLocalhost }: ContentSourceOptions) {
@@ -104,7 +104,7 @@ export class ExampleContentSource
         cache
     }: InitOptions<ExampleSchemaContext, ExampleDocumentContext, ExampleAssetContext, ExampleModelContext>): Promise<void> {
         this.cache = cache;
-        this.apiClient = new ExampleApiClient({
+        this.apiClient = new ExampleCmsApiClient({
             databaseFilePath: this.databaseFilePath
         });
         this.localDev = localDev;

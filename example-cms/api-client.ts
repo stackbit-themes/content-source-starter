@@ -2,7 +2,7 @@ import path from 'path';
 import fs from 'fs/promises';
 const { v4: uuidv4 } = require('uuid');
 
-export interface ExampleApiClientOptions {
+export interface ExampleCmsApiClientOptions {
     /** A projectId within the content source (provided for example, not used). */
     projectId?: string;
     /** A "service-level" access token to fetch models and content (provided for example, not used). */
@@ -88,7 +88,7 @@ export interface ExampleWebhook {
  * delay to simulate a real world use case of a headless CMS pushing the updated
  * content to CDN.
  */
-export class ExampleApiClient {
+export class ExampleCmsApiClient {
     private readonly databaseFilePath: string;
     private webhooks: ExampleWebhook[] = [];
     private contentChangeObservers: {
@@ -96,9 +96,9 @@ export class ExampleApiClient {
         callback: (options: { observerId: string; events: ExampleContentChangeEvent[] }) => void;
     }[] = [];
 
-    constructor(options: ExampleApiClientOptions) {
+    constructor(options: ExampleCmsApiClientOptions) {
         // ...
-        this.databaseFilePath = options.databaseFilePath ?? path.join(process.cwd(), 'example-content-source/example-database.json');
+        this.databaseFilePath = options.databaseFilePath ?? path.join(process.cwd(), 'example-cms/database.json');
     }
 
     async getModels(): Promise<ExampleModel[]> {
