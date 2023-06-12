@@ -1,4 +1,3 @@
-import path from 'path';
 import { defineStackbitConfig, SiteMapEntry, SiteMapOptions, DocumentWithSource, DocumentStringLikeFieldNonLocalized } from '@stackbit/types';
 import { ExampleContentSource } from './example-content-source/example-content-source';
 import { normalizeSlug } from './utils/common';
