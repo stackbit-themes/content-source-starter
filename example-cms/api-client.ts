@@ -2,7 +2,7 @@ import path from 'path';
 import fs from 'fs/promises';
 const { v4: uuidv4 } = require('uuid');
 
-export interface ExampleApiClientOptions {
+export interface ExampleCmsApiClientOptions {
     /** A projectId within the content source (provided for example, not used). */
     projectId?: string;
     /** A "service-level" access token to fetch models and content (provided for example, not used). */
@@ -28,6 +28,7 @@ export type ExampleModelField =
     | {
           type: 'string' | 'text' | 'markdown' | 'date' | 'image';
           name: string;
+          required?: boolean;
       }
     | {
           type: 'reference';
@@ -87,7 +88,7 @@ export interface ExampleWebhook {
  * delay to simulate a real world use case of a headless CMS pushing the updated
  * content to CDN.
  */
-export class ExampleApiClient {
+export class ExampleCmsApiClient {
     private readonly databaseFilePath: string;
     private webhooks: ExampleWebhook[] = [];
     private contentChangeObservers: {
@@ -95,9 +96,9 @@ export class ExampleApiClient {
         callback: (options: { observerId: string; events: ExampleContentChangeEvent[] }) => void;
     }[] = [];
 
-    constructor(options: ExampleApiClientOptions) {
+    constructor(options: ExampleCmsApiClientOptions) {
         // ...
-        this.databaseFilePath = options.databaseFilePath ?? path.join(process.cwd(), 'example-content-source/example-database.json');
+        this.databaseFilePath = options.databaseFilePath ?? path.join(process.cwd(), 'example-cms/database.json');
     }
 
     async getModels(): Promise<ExampleModel[]> {
@@ -106,13 +107,25 @@ export class ExampleApiClient {
         return data.models;
     }
 
-    async getDocuments(options?: { type?: string }): Promise<ExampleDocument[]> {
+    async getDocuments(options?: { type?: string; includeEmptyFields?: boolean }): Promise<ExampleDocument[]> {
         await networkDelay();
         const data = await this.loadData();
+        let documents = data.documents;
         if (options?.type) {
-            return data.documents.filter((document) => document.type === options.type);
+            documents = documents.filter((document) => document.type === options.type);
         }
-        return data.documents;
+        if (options?.includeEmptyFields) {
+            for (const document of documents) {
+                const model = data.models.find((model) => model.name === document.type);
+                if (!model) continue;
+                for (const field of model.fields) {
+                    if (typeof document.fields[field.name] === 'undefined') {
+                        document.fields[field.name] = null;
+                    }
+                }
+            }
+        }
+        return documents;
     }
 
     async getAssets(): Promise<ExampleAsset[]> {

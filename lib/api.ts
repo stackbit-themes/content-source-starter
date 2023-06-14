@@ -1,9 +1,7 @@
-import path from 'path';
-import { ExampleApiClient, ExampleAsset, ExampleDocument } from '../example-content-source/example-api-client';
+import { ExampleCmsApiClient, ExampleAsset, ExampleDocument } from '../example-cms/api-client';
 
-const apiClient = new ExampleApiClient({
-    projectId: 'example',
-    databaseFilePath: path.join(process.cwd(), 'example-content-source/example-database.json')
+const apiClient = new ExampleCmsApiClient({
+    databaseFilePath: process.env.EXAMPLE_DATABASE_FILE
 });
 
 export function getApiClient() {
@@ -22,6 +20,6 @@ export async function getDocumentById(documentId?: string): Promise<ExampleDocum
     if (!documentId) {
         return null;
     }
-    const documents = await apiClient.getDocuments();
+    const documents = await apiClient.getDocuments({ includeEmptyFields: true });
     return documents.find((document) => document.id === documentId) ?? null;
 }
