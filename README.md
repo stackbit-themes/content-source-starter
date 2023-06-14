@@ -1,3 +1,5 @@
+## 👉  This example was moved here: https://github.com/stackbit-themes/stackbit-examples/tree/main/custom-content-source
+
 # Stackbit Custom Content Source Example
 
 This example demonstrates how to integrate a custom content source with Stackbit through the [Content Source Interface](https://docs.stackbit.com/reference/content-sources), with full editing capabilities.
